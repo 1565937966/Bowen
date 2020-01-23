@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Request Form</title>
+</head>
+<style>
+</style>
+<h1 align="center">
+    Welcome to Fill Request Form
+</h1>
+<h2>Hello world</h2>
+<h3>Hello world</h3>
+<body style="background-color: #14fa85">
+<form method="get">
+    <span >Full Name</span><br>
+    <input id="Name" type="text" placeholder="Last name,First name">
+    <br>
+    <span>Date</span><br>
+    <input id="date" type="date">
+    <br>
+    <span >Request Information</span><br>
+    <textarea class="long_input" id="request_info" cols="30" rows="10"placeholder=""></textarea>
+    <br>
+    <button onclick="Get_User_Infor()" >submit</button>
+</form>
+  <script>
+    function Get_User_Infor() {
+        var Name=document.getElementById("Name").value;
+        var infor=document.getElementById("request_info").value;
+        document.write("Name: "+Name+"<br>");
+        document.write("Request information as following:"+"<br>"+infor);
+    }
+    </script>
+<span>hello world</span>
+</body>
+</html>
