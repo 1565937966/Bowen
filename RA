@@ -1,0 +1,104 @@
+import pandas
+from urllib import request
+import requests
+from bs4 import BeautifulSoup as Bs
+import re
+import time
+import os  # to make a folder
+import docx
+
+os.mkdir("C://Users//15659//Desktop//Syllabus")  # Make a directory
+path = "C://Users//15659//Desktop//Syllabus//"
+data = pandas.read_excel("C://Users//15659//Desktop//syllabus category.xlsx") # Read data from Excel file
+Links = data.iloc[1:, 0].values  # read link data
+# print(len(Links))
+Names = data.iloc[1:, 2].values  # read university name data
+Names_holder = []
+for name in Names:
+    Names_holder.append(name)  # store university name data
+
+headers = {
+    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/73.0.3683.86 Safari/537.36"}
+# add headers
+
+for index_link in range(0, len(Links)):  # use for loop to loop every link
+    get_request = request.Request(Links[index_link], headers=headers)
+    get_response = request.urlopen(get_request)
+    if '.doc' in Links[index_link]:  # if the file is .doc type, download and save
+        read_html = get_response.read()
+        with open(path + Names_holder[index_link] + ".doc", 'wb') as doc: # 'r' 'w' 'wb'
+            doc.write(read_html)
+    elif '.pdf' in Links[index_link]:  # if the file is pdf, download and save
+        read_html = get_response.read()
+        with open(path + Names_holder[index_link] + ".pdf", 'wb') as pdf:
+            pdf.write(read_html)
+    else:  # if the file is html, extract data from html file
+        soup = Bs(get_response, 'html.parser')
+        # check_pdf = soup.find_all(href=re.compile("\.pdf"))
+        # check_word = soup.find_all(href=re.compile("\.doc"))
+        all_content = soup.find_all('p')
+        count = len(all_content)
+        text_holder = []
+        # if want to use .doc file
+        doc = docx.Document()  # create a world document
+        for index in range(0, count):
+            text_holder.append(all_content[index].get_text())
+
+        for text in text_holder:
+            doc.add_paragraph(text)  # write text into world document
+            doc.save(path + str(Names_holder[index_link]) + ".doc")
+    print(index_link, Links[index_link])  # print the every link to see if there is a bug then we can easily debug
+
+
+
+
+'''
+    # if want to use txt file
+    for index in range(0, count):
+        text_holder.append(all_content[index].get_text())
+
+    with open("C://Users//15659//Desktop//Document.txt",'w') as document:
+        for text in text_holder:
+            document.write("\n"+text)
+    print(len(Names_holder))
+    print(Names_holder[24])
+    print(Links[24])
+    #solve the problem
+     pdf_count += 1
+                if "index4.htm" in Links[index_link]:
+                    final_link = Links[index_link].split("index4.htm")
+                    #print(final_link[0])
+                    #print(pdf_link["href"])
+                    new_link = str(final_link[0])+str(pdf_link["href"])
+                    print(new_link)
+                    get_Newpdfrequest = request.Request(new_link, headers=headers)
+                    get_pdfresponse = request.urlopen(get_Newpdfrequest)
+                    pdf_link_read = get_pdfresponse.read()
+                    with open(path + Names_holder[index_link] + str(pdf_link["href"]) + ".pdf", 'wb') as NewPdf:
+                        NewPdf.write(pdf_link_read)
+    ############## What if this is not a web link in href?
+     if check_pdf is not None:
+            for pdf_link in check_pdf:
+                check_status = requests.get(pdf_link["href"]).status_code
+                if check_status == 404:
+                    pass
+                else:
+                    get_pdfrequest = request.Request(pdf_link["href"], headers=headers)
+                    get_pdfresponse = request.urlopen(get_pdfrequest)
+                    pdf_link_read = get_pdfresponse.read()
+                    with open(path + Names_holder[index_link] +".pdf", 'wb') as NewPdf:
+                        NewPdf.write(pdf_link_read)
+        elif check_word is not None:
+            for word_link in check_word:
+                get_wordrequest = request.Request(word_link_link["href"], headers=headers)
+                check_status = requests.get(word_link["href"]).status_code
+                if check_status == 404:
+                    pass
+                else:
+                    get_wordresponse = request.urlopen(get_wordrequest)
+                    word_link_read = get_wordresponse.read()
+                    with open(path + Names_holder[index_link] + ".docx", 'wb') as Newdoc:
+                        Newdoc.write(word_link_read)
+        else:
+
+'''
