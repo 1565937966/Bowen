@@ -1,0 +1,86 @@
+using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Data;
+using System.Drawing;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Windows.Forms;
+
+namespace AssignmentOne
+{
+    public partial class Form1 : Form
+    {
+        public Form1()
+        {
+            InitializeComponent();
+        }
+
+        private void InputUrl_TextChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void Go_button_Click(object sender, EventArgs e)
+        {
+            string url = "http://"+InputUrl.Text;   // Set variable to store the information of InputUrl Text box
+            Uri my_uri = null;
+            // Make request and response object
+            System.Net.HttpWebRequest request = null;
+            System.Net.HttpWebResponse response = null;
+            try
+            {
+                my_uri = new Uri(url);// new an instance of Uri
+            }
+            catch (Exception error)
+            {
+                MessageBox.Show("Failed, because " + error.Message); // try catch to catch the error and show the error message
+            }
+            // Set the request method and timeout 
+            request = (System.Net.HttpWebRequest)System.Net.WebRequest.Create(my_uri);
+            request.Method = "GET";
+            request.Timeout = 5000;
+            // Get response from web sever and catch the error if there is 
+            try
+            {
+                response = (System.Net.HttpWebResponse)request.GetResponse();
+            }
+            catch(Exception err)
+            {
+                MessageBox.Show("Failed, because " + err.Message);
+            }
+            try
+            {
+                
+                string all_headers = null;
+                all_headers = response.Headers.ToString();// store the headers information 
+                string[] every_item = all_headers.Split('\n');// split header inforamtion by '\n'
+                int NumberOfitems = every_item.Length - 1;
+                for(int i=0;i<NumberOfitems;i++)
+                {
+                    Headers.Items.Add(every_item[i]); // add every items in headers
+
+                }
+                StatusCode.Text = (int)(response.StatusCode)+" : "+response.StatusCode.ToString(); // show statuse code in box
+            }
+            catch (Exception er)
+            {
+                MessageBox.Show("Failed, because " + er.Message);
+            }
+                System.IO.Stream stream = response.GetResponseStream();
+                Picture.Image = Image.FromStream(stream);
+             
+        }
+
+        private void InputUrl_KeyDown(object sender, KeyEventArgs e)
+        {
+            // press keydown to run the program instead of cliking the go button
+            if (e.KeyCode == Keys.Enter)
+            {
+                Go_button_Click(InputUrl, new EventArgs());
+            }
+        }
+      
+    }
+}
