@@ -1,0 +1,94 @@
+// manager html
+<%@ Page Language="C#" AutoEventWireup="true" CodeBehind="Manager.aspx.cs" Inherits="web_system.Manager" %>
+
+<!DOCTYPE html>
+
+<style type="text/css">
+            #form1 
+            {
+                height: auto;
+                width: auto;
+            }
+            table, th, td 
+            {
+                border: 1px solid black;
+            }
+            th, td 
+            {
+                padding: 15px;
+            }
+            th 
+            {
+               text-align: left;
+            }
+        </style>
+   
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head runat="server">
+    <title>Manager View</title>
+</head>
+
+<body style="background-image:linear-gradient(45deg, white, black); font-family:serif">
+    <form id="form1" runat="server">
+        <h1 style="text-align:center;color:bisque">Request Viewer System</h1>
+        <br />
+        <br />
+        <br />
+        <br />
+        <br />
+        <br />
+        <br />
+        <div class="fill_information" style="text-align:center; margin-top:200px">
+        <label style="font-size:20px">
+            From: </label>
+        <asp:TextBox ID="From" runat="server" TextMode="Date"></asp:TextBox>
+       
+        <br />
+        <br />
+        <br />
+        <label style="font-size:20px; text-align: right;">To:&nbsp;&nbsp;&nbsp;&nbsp</label>
+        <asp:TextBox ID="To" runat="server" TextMode="Date"></asp:TextBox>
+        <br />
+        <br />
+            <label style="font-size:20px">
+            <br />
+            Request Status: </label>
+        <asp:DropDownList ID="DropDownList" runat="server" Height="21px" Width="100px" AutoPostBack="True" >
+            <asp:ListItem>Select</asp:ListItem>
+            <asp:ListItem>Submited</asp:ListItem>
+            <asp:ListItem>Approved</asp:ListItem>
+            <asp:ListItem>Denied</asp:ListItem>
+            </asp:DropDownList>
+        <br />
+        <br />
+        <br />
+        <asp:Button ID="SearchButton" runat="server" Text="Search" OnClick="SearchButton_Click" />
+            </div>
+         </form>
+</body>
+</html>
+
+// Manager .cs file
+using System.Web.UI.WebControls;
+
+namespace web_system
+{
+    public partial class Manager : System.Web.UI.Page
+    {
+        
+        protected void Page_Load()
+        {
+
+        }
+        
+
+        protected void SearchButton_Click(object sender, EventArgs e)
+        {
+            Session["selected"]= DropDownList.SelectedItem.Text;
+            Session["from"] = From.Text;
+            Session["to"] = To.Text;
+            Response.Redirect("Load_page.aspx");
+        }
+    }
+}
