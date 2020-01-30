@@ -1,0 +1,110 @@
+// Employee html
+<%@ Page Language="C#" AutoEventWireup="true" CodeBehind="Employee.aspx.cs" Inherits="web_system.Employee" %>
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+    <head runat="server">
+        <title>Employee Request System</title>
+        
+        <style type="text/css">
+              #form1 {
+                height: auto;
+                width: auto;
+            }
+        </style>
+            
+    </head>
+    <body style="background-image:linear-gradient(45deg, white, black); font-family:serif" >
+        <form id="form1" runat="server">
+        <h1 style="text-align:center;color:bisque" >Request Form System</h1>
+            <p style="text-align:center;color:bisque; height: 60px; text-align:center; margin-top:200px" >
+                <asp:Label ID="Label1" runat="server" style="font-weight: 700; z-index: 1; left: 718px; top: 102px; position: absolute; height: 23px; width: 419px; font-size: xx-large; text-align: right;" Text="Label"></asp:Label>
+            </p>
+        <div class="fill_information" style="text-align:center; margin-top:200px">
+             Decision Date<br />
+            <asp:TextBox ID="Date" runat="server" TextMode="Date"></asp:TextBox><br />
+                
+            <span style="font-size:20px">Request infomration</span><br />
+            
+            <asp:TextBox ID="Request_info" runat="server" Rows="20" MaxLength="50" Height="226px" TextMode="MultiLine" Width="283px" placeholder="Detailed about request information"></asp:TextBox><br />
+            <asp:Button ID="Submit" runat="server" Text="Submit" OnClick="Submit_Click" />
+        </div>
+       </form>
+    </body>
+</html>
+
+// Employee .cs file
+namespace web_system
+{
+    public partial class Employee : System.Web.UI.Page
+    {
+        protected void Page_Load(object sender, EventArgs e)
+        {
+            //Date.Text = DateTime.Now.ToString("MM/dd/yyyy");
+            string ConnectString = "provider=Microsoft.ACE.OLEDB.12.0;" + "Data Source=Z://BA372//Database.accdb";
+            System.Data.OleDb.OleDbConnection Connection = new System.Data.OleDb.OleDbConnection(ConnectString);
+            Connection.Open();
+            System.Data.OleDb.OleDbCommand SQLCommand = null;
+            string query= "select First_Name from Employee where Employee_ID = " + (int)(Session["User_ID"]) + ";";
+            SQLCommand = new System.Data.OleDb.OleDbCommand(query, Connection);
+            System.Data.OleDb.OleDbDataReader SQLDataReader = null;
+            SQLDataReader = SQLCommand.ExecuteReader();
+            if (SQLDataReader.Read())
+            {
+                Label1.Text = "Dear "+SQLDataReader.GetString(0)+", welcome back";
+            }
+            Connection.Close();
+        }
+
+        protected void Submit_Click(object sender, EventArgs e)
+        {
+            //int employee_ID = System.Convert.ToInt16(employee_id.Text);
+            string ConnectString = "provider=Microsoft.ACE.OLEDB.12.0;" + "Data Source=Z://BA372//Database.accdb";
+            System.Data.OleDb.OleDbConnection Connection = new System.Data.OleDb.OleDbConnection(ConnectString);
+            try
+            {
+
+                Connection.Open();
+                ClientScript.RegisterStartupScript(this.GetType(), "alert", "alert('Submit successful');", true);
+            }
+            catch (Exception)
+            {
+                ClientScript.RegisterStartupScript(this.GetType(), "alert", "alert('Submit failed');", true);
+                return;
+            }
+
+            System.Data.OleDb.OleDbCommand SQLCommand = null;
+            string query = "insert into Request (Employee_ID,Request_Date,Request_infor,Request_result) values('" + Session["User_ID"] + "','" + Date.Text + "','" + Request_info.Text + "','" + "Submited" + "');";
+            SQLCommand = new System.Data.OleDb.OleDbCommand(query, Connection);
+            SQLCommand.ExecuteNonQuery();
+            Connection.Close();
+            //First_Name.Text = string.Empty;
+            //Last_Name.Text = string.Empty;
+            //employee_id.Text = string.Empty;
+            Request_info.Text = string.Empty;
+            string from = "1565937966@qq.com";
+            string to = "viki97czq@gmail.com";
+            string subject = "New Request Need to Check";
+            string Link = "http://localhost:50386/Manager.aspx";
+            string body = "Dear Manager,\nThere is a new request sent by employee, please check\nCheck Link: "+Link+"\n\n\n\nBest,\nTechnology Team";
+            string user_name = "1565937966@qq.com";
+            string password = "yqlhghxazhozhheh";
+
+            try
+            {
+                MailMessage mail = new MailMessage(from, to, subject, body);
+                SmtpClient client = new SmtpClient("smtp.qq.com");
+                client.Port = 587;
+                client.Credentials = new System.Net.NetworkCredential(user_name, password);
+                client.EnableSsl = true;
+                client.Send(mail);
+            }
+            catch (Exception)
+            {
+                ClientScript.RegisterStartupScript(this.GetType(), "alert", "alert('Email send failed');", true);
+                return;
+            }
+        }
+    }
+}
