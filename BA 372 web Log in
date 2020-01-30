@@ -1,0 +1,118 @@
+// html file 
+<%@ Page Language="C#" AutoEventWireup="true" CodeBehind="Login.aspx.cs" Inherits="web_system.Login" %>
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head runat="server">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /> 
+    <title>Welcom to Log in</title>
+    <style type="text/css">
+              #form1 {
+                height:auto;
+                width: auto;
+            }
+              h1{
+                  width:100VW;
+                  height:100VH;
+              }
+        .auto-style1 {
+            text-align: center;
+            font-size: 50pt;
+        }
+        .auto-style2 {
+            font-size: x-large;
+        }
+        .auto-style3 {
+            margin-left: 0px;
+        }
+        .auto-style4 {
+            font-size: x-large;
+        }
+        .auto-style5 {
+            font-weight: 700;
+        }
+        </style>
+
+</head>
+    <body style="background-image:linear-gradient(45deg,black, white); font-family:serif">
+        <form id="form1" runat="server">
+            <p class="auto-style1">
+             <strong style="color:whitesmoke">Login</strong></p>
+            <div class="login" style="text-align:center; margin-top:300px; color:whitesmoke">
+                <label><strong><span class="auto-style2">User ID</span></strong></label><br />
+                <asp:TextBox ID="user_id" runat="server" CssClass="auto-style3" Height="42px" Width="350px" Font-Size="X-Large"></asp:TextBox><br />
+                <label><strong><span class="auto-style2">Password</span></strong></label><br />
+                <asp:TextBox ID="pass_word" runat="server" type="password" CssClass="auto-style4" Height="42px" Width="350px" Font-Size="X-Large" ></asp:TextBox><br />
+                <br />
+                <br />
+                <br />
+                <br />
+                <br />
+                <asp:Button ID="Login_button" runat="server" Text="LOGIN" CssClass="auto-style5" Height="42px" Width="353px" style="background-color:whitesmoke; color:black" OnClick="Login_button_Click" />
+            </div>
+        </form>
+    </body>
+</html>
+
+
+// .cs file 
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Web;
+using System.Web.UI;
+using System.Web.UI.WebControls;
+
+namespace web_system
+{
+    public partial class Login : System.Web.UI.Page
+    {
+        protected void Page_Load(object sender, EventArgs e)
+        {
+            
+        }
+
+        protected void Login_button_Click(object sender, EventArgs e)
+        {
+            int input_password = System.Convert.ToInt32(pass_word.Text);
+            int real_password;
+            int employee_ID = System.Convert.ToInt32(user_id.Text);
+            string ConnectString = "provider=Microsoft.ACE.OLEDB.12.0;" + "Data Source=Z://BA372//Database.accdb";
+            System.Data.OleDb.OleDbConnection Connection = new System.Data.OleDb.OleDbConnection(ConnectString);
+            System.Data.OleDb.OleDbCommand SQLCommand = null;
+            System.Data.OleDb.OleDbDataReader SQLDataReader = null;
+            string query = "select Password from Employee where Employee_ID=" + employee_ID + ";";
+            try
+            {
+
+                Connection.Open();
+                SQLCommand = new System.Data.OleDb.OleDbCommand(query, Connection);
+                SQLDataReader = SQLCommand.ExecuteReader();
+
+            }
+            catch (Exception)
+            {
+                ClientScript.RegisterStartupScript(this.GetType(), "alert", "alert('Log failed');", true);
+                return;
+            }
+            if (SQLDataReader.Read())
+            {
+                real_password = SQLDataReader.GetInt32(0);
+                if (input_password == real_password)
+                {
+                    Session["User_ID"] = System.Convert.ToInt32(user_id.Text);
+                    Response.Redirect("Employee.aspx");
+                    Connection.Close();
+                }
+                else
+                {
+                    ClientScript.RegisterStartupScript(this.GetType(), "alert", "alert('Check user ID and password');", true);
+                    user_id.Text = string.Empty;
+                    pass_word.Text = string.Empty;
+                }
+            }
+            
+        }
+    }
+}
