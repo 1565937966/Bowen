@@ -1,0 +1,110 @@
+using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Data;
+using System.Drawing;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Windows.Forms;
+using System.IO;
+using System.Data.OleDb;
+namespace Assignment1
+{
+    public partial class Form1 : Form
+    {
+        public Form1()
+        {
+            InitializeComponent();
+        }
+       
+        private void button1_Click(object sender, EventArgs e)//using the OpenFileDialog class to read the path to textBox1
+        {
+            OpenFileDialog ofd = new OpenFileDialog();
+            if (ofd.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+            {
+                textBox1.Text = ofd.FileName;
+            }
+        }
+        private void button2_Click(object sender, EventArgs e)//using the OpenFileDialog class to read the path to textBox2
+        {
+            OpenFileDialog ofd = new OpenFileDialog();
+            if (ofd.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+            {
+                textBox2.Text = ofd.FileName;  
+            }
+
+        }
+        private void button3_Click(object sender, EventArgs e)
+        {
+            string ReadFile=null;
+            string Connecting = "provider=Microsoft.ACE.OLEDB.12.0;" + "Data Source=" + textBox2.Text;
+            OleDbConnection Connection = new OleDbConnection(Connecting);// new a Connection object to make an instance 
+            try
+            {
+                ReadFile = File.ReadAllText(textBox1.Text);//define the ReadFile variable to store the text from the path that we have stored in textBox1.Text
+            }
+            catch (Exception error)//using try catch to catch the errors
+            {
+                MessageBox.Show("Open failed, because " + error.Message);
+            }
+            try
+            {
+                Connection.Open();//build a connection with database, and use try catch to get problem as well.
+            }
+            catch (System.Exception g)
+            {
+                MessageBox.Show("That could not open, because " + g.Message + MessageBoxIcon.Error + MessageBoxButtons.OK);//using messagebox to show the error
+            }
+           
+            string[] sql_commands = ReadFile.Split(new char[] { ';' });//create string array by splitting ';'
+            int OderCommand = sql_commands.Length;
+            
+            string Query;//define a variable that hold query command
+
+            //using for loop to the command in sql_command array
+            for (int i = 0; i < OderCommand - 1; i++)
+            {
+                
+                string[] sql_Line = sql_commands[i].Split(new char[] {'\n'});
+                Query = sql_commands[i];
+
+                for (int j = 0; j < sql_Line.Length; j++)//using inner loop to get the very line in every command array
+                {
+                    listBox1.Items.Add(sql_Line[j]);
+                }
+                OleDbCommand Command = new OleDbCommand(Query, Connection); //new a Command subject ti create an instance 
+
+                try
+                {
+                    Command.ExecuteNonQuery();//using try catch statement to excute the query 
+                }
+                catch (Exception Error)
+                {
+                    listBox1.Items.Add("Problem exexuting SQL statement... " + Error.Message);
+                    break;
+
+                }
+
+            }
+            Connection.Close();
+            
+
+        }
+        private void button4_Click(object sender, EventArgs e)//This is to close the diagram if everythign was done
+        {
+            Dispose();
+
+        }
+
+        private void Form1_Load(object sender, EventArgs e)//Just Ignore this one
+        {
+
+        }
+
+        private void textBox1_TextChanged(object sender, EventArgs e)
+        {
+
+        }
+    }
+}
