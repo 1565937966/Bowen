@@ -1,0 +1,133 @@
+// load html
+<%@ Page Language="C#" AutoEventWireup="true" CodeBehind="Load_page.aspx.cs" Inherits="web_system.Load_page" %>
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head runat="server">
+    <title></title>
+    <style>
+        table, th, td
+        {
+         border: 1px solid black;
+         border-collapse: collapse;
+         height:auto;
+         width:initial;
+         text-align:left;
+        }
+        th 
+        {
+         text-align: left;
+        }
+       
+    </style>
+</head>
+<body >
+    <form id="form1" runat="server">
+        <div>
+           <asp:Literal id="data_show" runat="server"></asp:Literal>
+        </div>
+    </form>
+</body>
+</html>
+
+// page .cs file 
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Web;
+using System.Web.UI;
+using System.Web.UI.WebControls;
+
+namespace web_system
+{
+    public partial class Load_page : System.Web.UI.Page
+    {
+        protected void Page_Load(object sender, EventArgs e)
+        {
+            //bool check = false;
+            string ConnectString = "provider=Microsoft.ACE.OLEDB.12.0;" + "Data Source=Z://BA372//Database.accdb";
+            System.Data.OleDb.OleDbConnection Connection = new System.Data.OleDb.OleDbConnection(ConnectString);
+            System.Data.OleDb.OleDbDataReader SQLDataReader = null;
+            System.Data.OleDb.OleDbCommand SQLCommand = null;
+            //try
+            //{
+            //    //make a connection object
+            //    Connection.Open();
+            //    ClientScript.RegisterStartupScript(this.GetType(), "alert", "alert('Submit successful');", true);
+            //}
+            //catch (Exception)
+            //{
+            //    ClientScript.RegisterStartupScript(this.GetType(), "alert", "alert('Request failed, check database connection');", true);
+            //    return;
+            //}
+
+            string query = null;
+            if ((string)Session["selected"] == "All")
+            {
+                query = "select * from Request where Request_Date >= #" + (string)Session["from"] + "# AND Request_Date <= #" + (string)Session["to"] + "#);";
+
+            }
+            else
+            {
+                query = "select * from Request where Request_Date >= #" + (string)Session["from"] + "# AND Request_Date <= #" + (string)Session["to"] + "# AND Request_result = '" + (string)Session["selected"] + "';";
+
+            }
+
+            //make an OleDbCommand object
+           
+            //try
+            //{
+                Connection.Open();
+            SQLCommand = new System.Data.OleDb.OleDbCommand(query, Connection);
+            SQLDataReader = SQLCommand.ExecuteReader();
+            data_show.Text = "<table style=\"width:100%\">\n";
+            data_show.Text += "<caption style=\"font-size:250%; text-align:left\"> Request Reviewer </caption>";
+            data_show.Text += "<tr>\n";
+            data_show.Text += "<th>Request Number</th>\n";
+            data_show.Text += "<th>Employee Number</th>\n";
+            data_show.Text += "<th>Request Status</th>\n";
+            data_show.Text += "<th>Request Date</th>\n";
+            data_show.Text += "<th>Request Comments</th>\n";
+            //if (SQLDataReader.Read())
+            //{
+            //    check = true;
+            //}
+            while (SQLDataReader.Read())
+            {
+                data_show.Text += "<tr>\n";
+                data_show.Text += "<td>\n";
+                data_show.Text += System.Convert.ToString(SQLDataReader.GetValue(0));
+                data_show.Text += "</td>\n";
+                data_show.Text += "<td>\n";
+                data_show.Text += System.Convert.ToString(SQLDataReader.GetValue(1));
+                data_show.Text += "</td>\n";
+                
+                data_show.Text += "<td>\n";
+                data_show.Text += System.Convert.ToString(SQLDataReader.GetValue(2));
+                data_show.Text += "</td>\n";
+                
+                data_show.Text += "<td>\n";
+                data_show.Text += System.Convert.ToString(SQLDataReader.GetValue(3));
+                data_show.Text += "</td>\n";
+                
+                data_show.Text += "<td>\n";
+                data_show.Text += System.Convert.ToString(SQLDataReader.GetValue(4));
+                data_show.Text += "</td>\n";
+                data_show.Text += "</tr>\n";
+            }
+
+            data_show.Text += "</table>";
+
+
+
+            Connection.Close();
+            //ClientScript.RegisterStartupScript(this.GetType(), "alert", "alert('Query successful');", true);
+            //}
+           
+
+        }
+
+        
+    }
+}
