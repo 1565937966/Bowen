@@ -1,0 +1,52 @@
+#!/bin/bash
+#define the variable
+n_argu=$#
+sum_submmit=0
+sum_rejected=0
+sum_rr=0
+sum_accept=0
+number_author=0
+
+if [ $n_argu = 1 ] # To check if there is arugemtn passed in
+then
+        unzip $1 # unzip file
+        echo -e "researcher\t\tsubmitted\trejected\tr_and_r\t\taccepted"
+        for each_file in research_productivity/* # loop the file in that file_filoder
+        do
+                author="$(basename $each_file)"
+
+                xlsx2csv $each_file/$author.xlsx > $each_file/$author.csv # transfer to .csv file
+                # count the total of each type of activity
+                sub=$(grep -o "submitted" $each_file/$author.csv | wc -w)
+                sum_submmit=$(expr $sum_submmit + $sub)
+                  rej=$(grep -o "rejected" $each_file/$author.csv | wc -w)
+                sum_rejected=$(expr $sum_rejected + $rej)
+
+                r_r=$(grep -o "r&r" $each_file/$author.csv | wc -w)
+                sum_rr=$(expr $sum_rr + $r_r)
+
+                acc=$(grep -o "accepted" $each_file/$author.csv | wc -w)
+                sum_accept=$(expr $sum_accept + $acc)
+                number_author=$(expr $number_author + 1)
+                author_cha=$(expr length $author)
+                number=15
+                # format
+                if [ $author_cha -gt $number ]
+                then
+                        echo -e "$author\t$sub\t\t$rej\t\t$r_r\t\t$acc"
+                else
+                        echo -e "$author\t\t$sub\t\t$rej\t\t$r_r\t\t$acc"
+                fi
+        done
+          # To calculate the avarage
+        aver_submit=$(echo "scale=3;$sum_submmit/$number_author" | bc -l)
+        aver_reject=$(echo "scale=3;$sum_rejected/$number_author" | bc -l)
+        aver_r_r=$(echo "scale=3;$sum_rr/$number_author" | bc -l)
+        aver_accept=$(echo $"scale=3;$sum_accept/$number_author" | bc -l)
+        echo -e "\ntotals\t\t\t$sum_submmit\t\t$sum_rejected\t\t$sum_rr\t\t$sum_accept"
+        echo -e "average\t\t\t$aver_submit\t\t$aver_reject\t\t$aver_r_r\t\t$aver_accept"
+else
+        echo "Error.. script requires name of zip file"
+        exit1
+fi
+
