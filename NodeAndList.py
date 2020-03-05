@@ -32,12 +32,22 @@ class SingleLine:
                     current = current.next
             # current.next = node
 
-    def remove(self):
+    def remove(self, data):
         current = self._head
-        length = self.length()
-        for i in range(0, length-2):
-            current = current.next
-        current.next = None
+        if current.item == data:
+            if current.next is not None:
+                self._head = current.next
+                current = self._head
+            else:
+                self._head = None
+        # pre = None
+        while current.next is not None:
+            if current.next.item == data:
+                current.next = current.next.next
+                # break  # because it doesn't have any information about current, so it have to use break to break the loop
+            else:
+                # pre = current
+                current = current.next
 
     def add(self, item):
         node = Node(item)
@@ -46,8 +56,8 @@ class SingleLine:
         else:
             temp = self._head
             self._head = node
-            current = self._head
-            current.next = temp
+            # current = self._head
+            node.next = temp
 
     def insert(self, pos, item):
         current = self._head
@@ -83,19 +93,39 @@ class SingleLine:
     def search(self, item):
         pass
 
+    def reversed_print(self):
+        current = self._head
+        pre = None
+        while current is not None:
+            temp = current
+            current = current.next
+            temp.next = pre
+            pre = temp
+        while pre:
+            print(pre.item)
+            pre = pre.next
+
 
 
 if __name__ == "__main__":
 
     List = SingleLine()
+    # List.append(20)
+    # List.append(30)
+    List.append(10)
     List.append(20)
     List.append(30)
-    List.add(10)
-    List.insert(2, 3)
-    List.insert(2, 20)
-    print(List.travel())
-    print(List.is_empty())
-    print(List.length())
+    # List.insert(2, 3)
+    # List.insert(2, 20)
+    # print(List.travel())
+    # print(List.length())
+    print(List.reversed_print())
+
+    # List.remove(20)
+    # print(List.travel())
+    # List.remove(10)
+    # print(List.travel())
+
 '''
     List.add(8)
     List.insert(2, 5)
