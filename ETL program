@@ -1,0 +1,397 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using Excel = Microsoft.Office.Interop.Excel;
+using System.IO;
+
+namespace ExcelExport
+{
+    class Program
+    {
+        static void Main(string[] args)
+        {
+/************************************************************************************************************************************************/
+    //Set path of access file and .txt file, set variables. Open and read .txt file and store the data into different Arrays 
+            int NumberOfRow;
+            int Total_Row = 7;
+            int Total_Columns = 12;
+            int NumberOfPaper = 0;
+            int Number_Coauthor = 0;
+            string content = "";
+            string ActivityType = null;
+            string text;
+            string Main_Path = "C:\\Users\\zhanbowe\\Desktop\\aarav_roberts.xlsx";
+            string Main_TxtPath = "C:\\Users\\zhanbowe\\Desktop\\";
+            string checker=null;
+            string Connection = "provider=Microsoft.ACE.OLEDB.12.0;" + "Data Source=C:\\Users\\zhanbowe\\Desktop\\Test.accdb";
+            string[] Names = File.ReadAllText(Main_TxtPath + "names.txt").Split('\n');
+            int Faculty_ID;
+            string[] Department = File.ReadAllText(Main_TxtPath + "depts.txt").Split('\n');
+            int Department_ID;
+            string[] Journals = File.ReadAllText(Main_TxtPath + "journals.txt").Split('\n');
+            int NumberOfJornals;
+            string Type = "Journal";
+            string[] Conferences = File.ReadAllText(Main_TxtPath + "conferences.txt").Split('\n');
+            int NumberOfConference;
+            //string[] Roles = File.ReadAllText(Main_TxtPath + "role.txt").Split('\n');
+            //int NumberOfRoles;
+            //string[] Activity_Type = File.ReadAllText(Main_TxtPath + "activity.txt").Split('\n');
+            //int NumberOfAct;
+            string query = null;
+            int Role_ID;
+/*************************************************************************************************************************************************/
+        //Open Access database
+            System.Data.OleDb.OleDbConnection Connect = new System.Data.OleDb.OleDbConnection(Connection);
+            System.Data.OleDb.OleDbCommand Command = null;
+            System.Data.OleDb.OleDbDataReader SQLDataReader = null;
+            Connect.Open();
+/*************************************************************************************************************************************************/
+        //Insert value to FACULTY TABLE(Done)
+            for (Faculty_ID = 1; Faculty_ID <= Names.Length - 1; Faculty_ID++)
+            {
+                query = "Insert into FACULTY(Fac_ID,Fac_Name) Values('" + Faculty_ID + "','" + Names[Faculty_ID - 1] + "')";
+                Command = new System.Data.OleDb.OleDbCommand(query, Connect);
+                Command.ExecuteNonQuery();
+            }
+
+        // INSERT VALUE TO DEPARTMENT TABLE(Done)
+            for (Department_ID = 1; Department_ID <= Department.Length - 1; Department_ID++)
+            {
+                query = "Insert into DEPARTMENT(Department_ID,Department_Name) Values('" + Department_ID + "','" + Department[Department_ID - 1] + "')";
+                Command = new System.Data.OleDb.OleDbCommand(query, Connect);
+                Command.ExecuteNonQuery();
+            }
+
+        //Insert value into TARGET table-------->journal part(!Done)
+            for (NumberOfJornals = 1; NumberOfJornals <= Journals.Length - 1; NumberOfJornals++)
+            {
+                string[] Journal_Name = Journals[NumberOfJornals - 1].Split(';');
+
+                if (NumberOfJornals <= 5)
+                {
+
+                    query = "Insert into Target(Target_ID,Target_Type,Target_Name,Tier) Values('" + NumberOfJornals + "','" + Type + "','" + Journal_Name[0] + "','1')";
+                    Command = new System.Data.OleDb.OleDbCommand(query, Connect);
+                    Command.ExecuteNonQuery();
+                }
+                else if (NumberOfJornals > 5 && NumberOfJornals <= 10)
+                {
+
+                    query = "Insert into Target(Target_ID,Target_Type,Target_Name,Tier) Values('" + NumberOfJornals + "','" + Type + "','" + Journal_Name[0] + "','2')";
+                    Command = new System.Data.OleDb.OleDbCommand(query, Connect);
+                    Command.ExecuteNonQuery();
+                }
+                else if (NumberOfJornals > 10 && NumberOfJornals <= 15)
+                {
+
+                    query = "Insert into Target(Target_ID,Target_Type,Target_Name,Tier) Values('" + NumberOfJornals + "','" + Type + "','" + Journal_Name[0] + "','3')";
+                    Command = new System.Data.OleDb.OleDbCommand(query, Connect);
+                    Command.ExecuteNonQuery();
+                }
+                else
+                {
+
+                    query = "Insert into Target(Target_ID,Target_Type,Target_Name,Tier) Values('" + NumberOfJornals + "','" + Type + "','" + Journal_Name[0] + "','4')";
+                    Command = new System.Data.OleDb.OleDbCommand(query, Connect);
+                    Command.ExecuteNonQuery();
+                }
+            }
+
+        //Insert value into target table------>conference part------------Target table done.
+            Type = "Conference";
+            int Target_ID = 20;
+            for (NumberOfConference = 1; NumberOfConference <= Conferences.Length - 1; NumberOfConference++)
+            {
+                Target_ID++;
+                query = "Insert into Target(Target_ID,Target_Type,Target_Name,Tier) Values('" + Target_ID + "','" + Type + "','" + Conferences[NumberOfConference - 1] + "',' ')";
+                Command = new System.Data.OleDb.OleDbCommand(query, Connect);
+                Command.ExecuteNonQuery();
+            }
+        //?????????????????????????????????????????????Insert value into Role Table(Done)
+            //for (NumberOfRoles = 1; NumberOfRoles <= Roles.Length - 1; NumberOfRoles++)
+            //{
+            //    query = "Insert into ROLE(Role_ID,Role_Name) Values('" + NumberOfRoles + "','" + Roles[NumberOfRoles - 1] + "')";
+            //    Command = new System.Data.OleDb.OleDbCommand(query, Connect);
+            //    Command.ExecuteNonQuery();
+            //}
+        //??????????????????????????????????????????????Insert value into Activity_Type table(Done)
+            //for (NumberOfAct = 1; NumberOfAct <= Activity_Type.Length - 1; NumberOfAct++)
+            //{
+            //    query = "Insert into ACTIVITY_TYPE(Act_Type_ID,Act_Type_Name) Values('" + NumberOfAct + "','" + Activity_Type[NumberOfAct - 1] + "')";
+            //    Command = new System.Data.OleDb.OleDbCommand(query, Connect);
+            //    Command.ExecuteNonQuery();
+            //}
+/*************************************************************************************************************************************************************************************/
+        //Open Excel file and set variables
+            Excel.Application excel = new Excel.Application();
+            Excel.Workbook workbook = null;//why don't we need to new a object?
+            Excel.Worksheet worksheet = null;
+            workbook = excel.Workbooks.Open(Main_Path, 0, true);
+            worksheet = workbook.ActiveSheet;
+            Excel.Range range_author = (Excel.Range)worksheet.Cells[3, 1];
+            string author = System.Convert.ToString(range_author.Value);
+            int faculty_ID;
+            Excel.Range range_Department = worksheet.Cells[3, 2];
+            string department = System.Convert.ToString(range_Department.Value);
+            int department_ID;
+            string Paper_type = null;
+            string target_name = null;
+            string tire = null;
+            string Co_AuthorName_1 = null;
+            string Co_AuthorName_2 = null;
+            string Co_AuthorName_3 = null;
+            string Co_AuthorName_4 = null;
+            string order = null;
+            string Role = null;
+            string ActiveDate = null;
+            string Paper_title = null;
+            int target_ID = 0;
+            int Act_Type_ID;
+/************************************************************************************************************************/
+        //Insert Value into Department_Faculty Table (Done)
+            query = "Select Fac_ID from FACULTY where Fac_Name='" + author + "'";
+            Command = new System.Data.OleDb.OleDbCommand(query, Connect);
+            SQLDataReader = Command.ExecuteReader();
+            SQLDataReader.Read();
+            faculty_ID = SQLDataReader.GetInt16(0);
+            SQLDataReader.Close();
+
+            query = "Select Department_ID from DEPARTMENT where Department_Name='" + department + "'";
+            Command = new System.Data.OleDb.OleDbCommand(query, Connect);
+            SQLDataReader = Command.ExecuteReader();
+            SQLDataReader.Read();
+            department_ID = SQLDataReader.GetInt16(0);
+            SQLDataReader.Close();
+
+            query = "Insert into DEPARTMENT_FACU(Department_ID,Fac_ID) Values ('" + department_ID + "','" + faculty_ID + "')";
+            Command = new System.Data.OleDb.OleDbCommand(query, Connect);
+            Command.ExecuteNonQuery();
+
+ /*************************************************************************************************************************/
+        //Read every cells of Excel file and store the data in to variables
+            do
+            {
+                content = "";
+                Excel.Range range = (Excel.Range)worksheet.Cells[Total_Row, Total_Columns];
+
+                content = System.Convert.ToString(range.Value);
+                if (!string.IsNullOrEmpty(content))
+                {
+                    Total_Row++;
+                }
+            } while (!string.IsNullOrEmpty(content));
+            Total_Row--;
+        //To calculate the total rows of Excel file
+            for (NumberOfRow = 7; NumberOfRow <= Total_Row; NumberOfRow++)
+            {
+                for (int NumberOfColumn = 1; NumberOfColumn <= Total_Columns; NumberOfColumn++)
+                {
+                    Excel.Range Read = worksheet.Cells[NumberOfRow, NumberOfColumn];
+                    text = System.Convert.ToString(Read.Value);
+                    //this is one paper content
+                    if (!string.IsNullOrEmpty(text))
+                    {
+                        if (NumberOfColumn == 1)
+                        {
+                            Paper_title = text;
+                            //Console.WriteLine("Paper Title:{0}", Paper_title);
+                            NumberOfPaper++;
+                        }
+                        if (NumberOfColumn == 2)
+                        {
+
+                            Paper_type = text;
+                            // Console.WriteLine("Paper Type: {0}", Paper_type);
+                        }
+
+                        if (NumberOfColumn == 3 )
+                        {
+                            target_name = text;
+                            //Console.WriteLine("Target: {0}", target_name);
+                        }
+
+                        if (NumberOfColumn == 4)
+                        {
+                            if (!string.IsNullOrEmpty(text))
+                            {
+                                tire = text;
+                                //Console.WriteLine("tier: {0}", tire);
+                            }
+                            else
+                            {
+                                text = "null";
+                                tire = text;
+                                //Console.WriteLine("tier: {0}", tire);
+                            }
+                        }
+                        if (NumberOfColumn == 5)
+                        {
+                            
+                            Number_Coauthor++;
+                            Co_AuthorName_1 = text;
+                            //Console.WriteLine("Co_author{0}, Name: {1}", Number_Coauthor, Co_AuthorName_1);
+
+                        }
+
+                        if (NumberOfColumn == 6 )
+                        {
+                           
+                            Number_Coauthor++;
+                            //Console.WriteLine("Co_author{0}, Name: {1}", Number_Coauthor, Co_AuthorName_1);
+
+                        }
+
+                        if (NumberOfColumn == 7)
+                        {
+
+                            Number_Coauthor++;
+                            Co_AuthorName_3 = text;
+                            //Console.WriteLine("Co_author{0}, Name: {1}", Number_Coauthor, Co_AuthorName_1);
+
+                        }
+                        if (NumberOfColumn == 8 )
+                        {
+
+
+                            Number_Coauthor++;
+                            Co_AuthorName_4 = text;
+                            //Console.WriteLine("Co_author{0}, Name: {1}", Number_Coauthor, Co_AuthorName_1);
+
+                        }
+                        if (NumberOfColumn == 9 )
+                        {
+                            order = text;
+                            // Console.WriteLine("order: {0}", order);
+                        }
+                        if (NumberOfColumn == 10 )
+                        {
+                            Role = text;
+                            //Console.WriteLine("Role: {0}", Role);
+                        }
+                        if (NumberOfColumn == 11 )
+                        {
+                            ActiveDate = text;
+                            //Console.WriteLine("Activity Date: {0}", ActiveDate);
+                        }
+                        if (NumberOfColumn == 12)
+                        {
+                            ActivityType = text;
+                            //Console.WriteLine("Activity type: {0}", ActivityType);
+                        }
+                    }
+
+                }
+                Excel.Range First_cell = worksheet.Cells[NumberOfRow, 1];
+                checker = System.Convert.ToString(First_cell.Value);
+                if (!string.IsNullOrEmpty(checker))
+                {
+                    //Console.WriteLine("Paper Title:{0}", Paper_title);
+                    //Console.WriteLine("Paper Type: {0}", Paper_type);
+                    //Console.WriteLine("Target: {0}", target_name);
+                    //Console.WriteLine("tier: {0}", tire);
+                    //Console.WriteLine("order: {0}", order);
+                    //Console.WriteLine("Role: {0}", Role);
+                    //Console.WriteLine("Activity Date: {0}", ActiveDate);
+                    //Console.WriteLine("Activity type: {0}", ActivityType);
+                    //Number_Coauthor = 0;
+/*************************************************************************************************************************************************/
+        //Paper Table done
+                    query = "Select Target_ID from TARGET where Target_Name='" + target_name + "'";
+                    Command = new System.Data.OleDb.OleDbCommand(query, Connect);
+                    SQLDataReader = Command.ExecuteReader();
+                    SQLDataReader.Read();
+                    target_ID = SQLDataReader.GetInt16(0);
+                    SQLDataReader.Close();
+                    Console.WriteLine("Number of Paper {0}, Target_ID {1}", NumberOfPaper, target_ID);
+                    query = "Insert into PAPER(Paper_ID,Title,Target_ID) Values('" + NumberOfPaper + "','" + Paper_title + "','" + target_ID + "')";
+                    //Unhandled Exception: System.Data.OleDb.OleDbException: Number of query values and destination fields are not the same.
+                    Command = new System.Data.OleDb.OleDbCommand(query, Connect);
+                    Command.ExecuteNonQuery();
+                    //if (ActivityType == "accepted" || ActivityType == "rejected")
+                    //{
+                    //    Console.WriteLine();
+                    //}
+/*************************************************************************************************************************************************/
+        //Paper_Faculty Table done
+                    query = "Select Fac_ID from FACULTY where Fac_Name='" + author + "'";
+                    Command = new System.Data.OleDb.OleDbCommand(query, Connect);
+                    SQLDataReader = Command.ExecuteReader();
+                    SQLDataReader.Read();
+                    faculty_ID = SQLDataReader.GetInt16(0);
+                    SQLDataReader.Close();
+                    query = "Select Role_ID from ROLE where Role_Name='" + Role + "'";
+                    Command = new System.Data.OleDb.OleDbCommand(query, Connect);
+                    SQLDataReader = Command.ExecuteReader();
+                    SQLDataReader.Read();
+                    Role_ID = SQLDataReader.GetInt16(0);
+                    SQLDataReader.Close();
+                    query = "Insert into PAPER_FACULTY(Paper_ID,Fac_ID,Role_ID) Values('" + NumberOfPaper + "','" + faculty_ID + "','" + Role_ID + "')";
+                    Command = new System.Data.OleDb.OleDbCommand(query, Connect);
+                    Command.ExecuteNonQuery();
+/****************************************************************************************************************************************************/
+        //ACTIVITY Table 
+                    query = "Select Act_Type_ID from ACTIVITY_TYPE where Act_Type_Name='" + ActivityType + "'";
+                    Command = new System.Data.OleDb.OleDbCommand(query, Connect);
+                    SQLDataReader = Command.ExecuteReader();
+                    SQLDataReader.Read();
+                    Act_Type_ID = SQLDataReader.GetInt16(0);
+                    query= "Insert into ACTIVITY(Paper_ID,Act_Type_ID,Act_Date) Values('" + NumberOfPaper + "','" + Act_Type_ID + "','" + ActiveDate + "')";
+                    Command = new System.Data.OleDb.OleDbCommand(query, Connect);
+                    Command.ExecuteNonQuery();
+/***************************************************************************************************************************************************/
+        //Co_Author TABLE
+                    if (!string.IsNullOrEmpty(Co_AuthorName_1))
+                    {
+                        query = "Insert into CO_AUTHOR(Co_Author_Name,Paper_ID) Values('" + Co_AuthorName_1 + "','" + NumberOfPaper + "')";
+                        Command = new System.Data.OleDb.OleDbCommand(query, Connect);
+                        Command.ExecuteNonQuery();
+                    }
+                    if (!string.IsNullOrEmpty(Co_AuthorName_2))
+                    {
+                        query = "Insert into CO_AUTHOR(Co_Author_Name,Paper_ID) Values('" + Co_AuthorName_2 + "','" + NumberOfPaper + "')";
+                        Command = new System.Data.OleDb.OleDbCommand(query, Connect);
+                        Command.ExecuteNonQuery();
+                    }
+                    if (!string.IsNullOrEmpty(Co_AuthorName_3))
+                    {
+                        query = "Insert into CO_AUTHOR(Co_Author_Name,Paper_ID) Values('" + Co_AuthorName_3 + "','" + NumberOfPaper + "')";
+                        Command = new System.Data.OleDb.OleDbCommand(query, Connect);
+                        Command.ExecuteNonQuery();
+                    }
+                    if (!string.IsNullOrEmpty(Co_AuthorName_4))
+                    {
+                        query = "Insert into CO_AUTHOR(Co_Author_Name,Paper_ID) Values('" + Co_AuthorName_4 + "','" + NumberOfPaper + "')";
+                        Command = new System.Data.OleDb.OleDbCommand(query, Connect);
+                        Command.ExecuteNonQuery();
+                    }
+                    Co_AuthorName_1 = "";
+                    Co_AuthorName_2 = "";
+                    Co_AuthorName_3 = "";
+                    Co_AuthorName_4 = "";
+                }
+/***************************************************************************************************************************************************/
+        // Rest of ACTIVITY TABLE(Done)
+                else
+                {
+                    Excel.Range Activity_Date = worksheet.Cells[NumberOfRow, 11];
+                    ActiveDate = System.Convert.ToString(Activity_Date.Value);
+                    Excel.Range activity_type = worksheet.Cells[NumberOfRow, 12];
+                    ActivityType = System.Convert.ToString(activity_type.Value);
+                    query = "Select Act_Type_ID from ACTIVITY_TYPE where Act_Type_Name='" + ActivityType + "'";
+                    Command = new System.Data.OleDb.OleDbCommand(query, Connect);
+                    SQLDataReader = Command.ExecuteReader();
+                    SQLDataReader.Read();
+                    Act_Type_ID = SQLDataReader.GetInt16(0);
+                    query = "Insert into ACTIVITY(Paper_ID,Act_Type_ID,Act_Date) Values('" + NumberOfPaper + "','" + Act_Type_ID + "','" + ActiveDate + "')";
+                    Command = new System.Data.OleDb.OleDbCommand(query, Connect);
+                    Command.ExecuteNonQuery();
+                }
+/*****************************************************************************************************************************************************/
+            }
+            Console.WriteLine("Total Paper {0}", NumberOfPaper);
+        }
+            
+        }
+    }
